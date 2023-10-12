@@ -1,6 +1,7 @@
 package co.edu.umb.academia.webservice.api;
 
 import co.edu.umb.academia.webservice.entity.Agenda;
+import co.edu.umb.academia.webservice.entity.ResponseApi;
 import co.edu.umb.academia.webservice.service.AgendaService;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -30,22 +31,23 @@ public class AgendaController {
     private AgendaService service;
 
     @PostMapping({"/agregaragenda"})
-    public ResponseEntity<String> apiAgregarAgenda(
+    public ResponseEntity<ResponseApi> apiAgregarAgenda(
             @RequestParam(value = "pFecha", required = false) String pFecha,
             @RequestParam(value = "pAsunto", required = false) String pAsunto,
-            @RequestParam(value = "pActividad", required = false) String pActividad
+                @RequestParam(value = "pActividad", required = false) String pActividad
     ) {
-        String result = "";
+        ResponseApi apiMsg = new ResponseApi();
         try {
             service.agregarAgenda(new Agenda(0, pFecha, pAsunto, pActividad));
-            result = "Registro procesado correctamente!";
+            apiMsg.setMessage( "Registro procesado correctamente!");
         } catch (Exception ex) {
             StringWriter errors = new StringWriter();
             ex.printStackTrace(new PrintWriter(errors));
             log.error(errors.toString());
-            return new ResponseEntity(errors.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+            apiMsg.setMessage(errors.toString());
+            return new ResponseEntity(apiMsg, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity(result, HttpStatus.OK);
+        return new ResponseEntity(apiMsg, HttpStatus.OK);
     }
 
     @GetMapping({"/agendas"})
